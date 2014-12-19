@@ -9,12 +9,12 @@ package ontheflyvideo;
 import com.xuggle.mediatool.IMediaWriter;
 import com.xuggle.mediatool.ToolFactory;
 import com.xuggle.xuggler.ICodec;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,35 +29,34 @@ public class Mp4VideoCreator extends VideoCreator {
     
     @Override
     public void process() {
+        
+        if(DEBUG)
+            Logger.getLogger(Mp4VideoCreator.class.getName()).log(Level.INFO, "Video Encoding Started");
+            
         final IMediaWriter writer = ToolFactory.makeWriter(this.outFile);
-        
-        Dimension screenBounds = Toolkit.getDefaultToolkit().getScreenSize();
-        System.out.println(screenBounds.height);
-        System.out.println(screenBounds.width);
-        
-        writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4,screenBounds.width/2, screenBounds.height/2);
+        writer.addVideoStream(0, 0, ICodec.ID.CODEC_ID_MPEG4,screen.width, screen.height);
         
         long startTime = System.nanoTime();
         
         for (Object[] obj:this.imageObj) {
-                
-                BufferedImage screen = resize((BufferedImage)obj[0],1366,768);
-                BufferedImage bgrScreen = convertToType(screen, BufferedImage.TYPE_3BYTE_BGR);
-                
-                writer.encodeVideo(0, bgrScreen, System.nanoTime() - startTime,
-                        TimeUnit.NANOSECONDS);
-                
-                try {
-                    Thread.sleep((long)(1000 * TRANSITION_DELAY));
-                }
-                catch (InterruptedException e) {
-                    // ignore
-                }
-                
-            } 
-        
-        writer.close();
+            
+            BufferedImage screenImg = resize((BufferedImage)obj[0],screen.width,screen.height);
+            BufferedImage bgrScreen = convertToType(screenImg, BufferedImage.TYPE_3BYTE_BGR);
 
+            writer.encodeVideo(0, bgrScreen, System.nanoTime() - startTime,TimeUnit.NANOSECONDS);
+
+            try {
+                Thread.sleep((long)(1000 * TRANSITION_DELAY));
+            }
+            catch (InterruptedException e) {
+                // ignore
+            }
+        }
+
+        writer.close();
+        
+        if(DEBUG)
+            Logger.getLogger(Mp4VideoCreator.class.getName()).log(Level.INFO, "Video Encoding Complete.");
     }
     
     

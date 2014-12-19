@@ -24,7 +24,7 @@ public abstract class Imgcrawler {
     
     public Imgcrawler(HashMap<String, Object> params)
     {
-        MAX_IMAGE = 20;DEBUG = true;IMAGE_SIZE = "medium|large";IMAGE_TYPE = "all";RIGHTS = "all";
+        initCrawler();
         
         if(params.containsKey("MAX_IMAGE"))
             MAX_IMAGE = (Integer)params.get("MAX_IMAGE");
@@ -40,6 +40,15 @@ public abstract class Imgcrawler {
         
         if(params.containsKey("RIGHTS"))
             RIGHTS = (String)params.get("RIGHTS");
+    }
+    
+    private void initCrawler()
+    {
+        MAX_IMAGE = 20;
+        DEBUG = true;
+        IMAGE_SIZE = "medium|large";
+        IMAGE_TYPE = "all";
+        RIGHTS = "all";
     }
     
     public ArrayList<Object[]> getImageObj()
